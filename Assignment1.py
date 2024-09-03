@@ -23,6 +23,13 @@ print("\n ##### ASSIGNMENT 1 ##### \n")  # Ignore this line
 print("\n ##### Question 1 ################################################################### \n")  # Ignore this line
 # Write your code below
 
+name = "Christian Ortmann"
+print(name)
+print(name + '!') #concatenation
+name = "Christian Ortmann{check}"
+print(name.format(check = '!')) #.format()
+name = "Christian Ortmann"
+print(f'My name is {name}!') #fstring
 
 
 # End Q1
@@ -50,8 +57,12 @@ var_two = 543.78
 var_three = "43"
 var_four = "98.22"
 
+varList = [var_one,var_two,var_three,var_four]
 # Write your code below
 
+for var in varList: 
+    print(f"{var} has type {type(var)}")
+    
 
 
 # END Q2
