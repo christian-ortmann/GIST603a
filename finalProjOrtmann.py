@@ -1,4 +1,4 @@
-#%%
+
 #--------------------------------------------------
 #imports
 #--------------------------------------------------
@@ -7,6 +7,9 @@ import arcpy
 import pandas as pd
 import numpy as np
 import os
+
+
+
 #--------------------------------------------------
 #inputs
 #--------------------------------------------------
@@ -22,11 +25,17 @@ storeOut = r'C:\Users\cortmann\Desktop\GIST603a\GIST603a\finalProjChiSq\finalPro
 #.txt for analysis results
 chi2Results = r'C:\Users\cortmann\Desktop\GIST603a\GIST603a\finalProjChiSq\finalProjOut\chi2Results.txt'
 
+
+
+
 #--------------------------------------------------
 #outputs
 #--------------------------------------------------
 
 chi2Results
+
+
+
 
 #--------------------------------------------------
 #set up 
@@ -48,6 +57,9 @@ arcpy.management.MakeXYEventLayer(point_loc,'X','Y','nestLayer', spatial_referen
 #convert to .shp
 arcpy.FeatureClassToShapefile_conversion('nestLayer', storeOut)
 
+
+
+
 #---------------------------------------------------------------------
 #Relate distribution of nests to the vegetation types 
 #---------------------------------------------------------------------
@@ -66,6 +78,9 @@ arcpy.analysis.Statistics( storeOut+'/sampleVeg.dbf',  storeOut+'/sumVegTypes.db
 sv_array = arcpy.da.TableToNumPyArray( storeOut+'/sumVegTypes.dbf', '*')
 sumVegDf= pd.DataFrame(sv_array)
 
+
+
+
 #---------------------------------------------------------------------
 #Proportional area from each vegetation type 
 #---------------------------------------------------------------------
@@ -77,8 +92,11 @@ attrDf = pd.DataFrame(raster_array) #convert to df for easier processing
 #calculate proportion of total area
 attrDf['proportion'] = attrDf['Count']/sum(attrDf['Count'])
 
+
+
+
 #---------------------------------------------------------------------
-#Calculate Chi Squared
+#Calculate statistics
 #---------------------------------------------------------------------
 
 #initalize observed value
@@ -98,19 +116,20 @@ for index, veg in attrDf.iterrows():
 attrDf['chi2'] = ((attrDf['obs'] - (sum(attrDf['obs'])*attrDf['proportion']))**2)/(sum(attrDf['obs'])*attrDf['proportion'])
 chi2Sum = sum(attrDf['chi2'])
 
+#degrees of freedom
+dof = (len(attrDf['Type'])-1) * (2-1) #where two is the number of columns we are analyzing (expected and observed)
+
 #calculate Cramer's V
 q = min(len(attrDf['Type']),2)
-cramVSum= (chi2Sum / (sum(attrDf['obs']) * (q-1)))**(1/2)
+cramVSum= (chi2Sum / (sum(attrDf['obs']) * q-1))**(1/2)
 
 
 #open reference table
 chi2Ref = pd.read_csv(chi2)
 
-#degrees of freedom
-dof = (len(attrDf['Type'])-1) * (2-1) #where two is the number of columns we are analyzing (expected and observed)
 
 #grab chi2 for P = 0.05
-theorChi2 = chi2Ref.loc[dof-1,'0.05']
+theorChi2 = chi2Ref.loc[dof-1,'0.05'] #dof - 1 is to get the right index
 
 #results
 featureClassFileName = os.path.splitext(os.path.basename(point_loc))[0]
@@ -123,12 +142,17 @@ if chi2Sum >= theorChi2:
     result = f'We reject the null hypothesis\nPoints in the {featureClassFileName} feature class are NOT randomly distributed in the {arcpy.ListRasters()[0]} raster'
     infl = f'The classes in the {arcpy.ListRasters()[0]} raster strongly influence the distribution of points in the {featureClassFileName} feature class.'
 else:
-    eq = 'Observed Chi-Square < Theoretical Chi-Square'
+    eq = 'Observed Chi-Square <= Theoretical Chi-Square'
     result = f'We fail to reject the null hypothesis\nPoints in the {featureClassFileName} feature class are randomly distributed in the {arcpy.ListRasters()[0]} raster'
     infl = f"The classes in the {arcpy.ListRasters()[0]} raster weakly influence the distribution of points in the {featureClassFileName} feature class."
 
 
+
+
+
+#---------------------------------------------------------------------
 #write results to text file
+#---------------------------------------------------------------------
 
 final = open(chi2Results,'w')
 final.writelines(
@@ -154,4 +178,4 @@ final.writelines(
 final.close()
 
 
-# %%
+
