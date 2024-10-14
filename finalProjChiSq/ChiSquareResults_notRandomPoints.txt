@@ -1,0 +1,30 @@
+Chi Square Analysis Results
+
+Null Hypothesis: The points in nests are randomly distributed in the veg raster.
+
+Point Features
+	Feature Class Name: nests
+	Total Number of Points (n) = 50
+
+Raster
+	Raster Name: veg
+	Total Number of Classes = 7
+
+## Chi-Square Statistic
+
+Observed Chi-Square = 65.5405
+
+Degrees of Freedom = (7 - 1) x (2 - 1) = 6
+
+Theoretical Chi-Square for P = 0.05 = 12.59
+
+Observed Chi-Square > Theoretical Chi-Square
+
+We reject the null hypothesis
+Points in the nests feature class are NOT randomly distributed in the veg raster
+
+## Cramer V Statistic
+
+V = 0.8096
+
+The classes in the veg raster strongly influence the distribution of points in the nests feature class.
